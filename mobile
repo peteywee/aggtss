@@ -1,0 +1,41 @@
+#<mobile/MainActivity.kt>
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupNavigation()
+        observeData()
+    }
+
+    private fun observeData() {
+        viewModel.venues.observe(this) { venues ->
+            // Update UI with venue data
+        }
+    }
+}
+
+#<mobile/VenueViewModel.kt>
+class VenueViewModel : ViewModel() {
+    private val _venues = MutableLiveData<List<Venue>>()
+    val venues: LiveData<List<Venue>> = _venues
+
+    init {
+        fetchVenues()
+    }
+
+    private fun fetchVenues() {
+        viewModelScope.launch {
+            try {
+                val response = api.getVenues()
+                _venues.value = response
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+}
